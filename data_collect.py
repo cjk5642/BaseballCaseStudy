@@ -1,6 +1,9 @@
 from pybaseball import statcast
 from pybaseball import cache
 from datetime import datetime
+from datasources.schema import pbp_schema
+import pyarrow.parquet as pq
+import pyarrow
 import pandas as pd
 import os
 
@@ -27,13 +30,27 @@ def congregate_files_by_year(dir:str = 'pbp_data', out_dir:str = "pbp_data_by_ye
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
 
+    if len(os.listdir(dir)) == 0 or not os.path.isdir(dir):
+        collect_pitch_by_pitch(dir)
+
     pbp_file_paths = os.listdir(dir)
+
+    #unify schema
     
     # get file years
     file_years = sorted(set([p.split("-")[0] for p in pbp_file_paths]))
-    for f in file_years:
-        frame = pd.concat([pd.read_parquet(os.path.join(dir, p)) for p in pbp_file_paths if p.startswith(f)], axis = 0, ignore_index = True)
-        print(frame)
-        break
+    grouped_files = [[os.path.join(dir, p) for p in pbp_file_paths if p.startswith(f)] for f in file_years]
+
+    for i, files in enumerate(grouped_files):
+        file_path = os.path.join(out_dir, f"{file_years[i]}.parquet")
+        if os.path.exists(file_path):
+            print(f"The file {file_path} already exists.")
+            continue
+        else:
+            print(f"The file {file_path} doesn't exist.")
+            with pq.ParquetWriter(file_path, schema=pbp_schema) as writer:
+                for file in files:
+                    writer.write_table(pq.read_pandas(file, schema=pbp_schema))
+    return None        
 
 congregate_files_by_year()
