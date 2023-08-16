@@ -8,7 +8,7 @@ cache.config.cache_type = "parquet"
 cache.config.save()
 
 #players = pd.read_csv("datasources/players.csv")
-years = range(2007, 2023)
+years = range(2007, 2024)
 chunks = [('01-01', '05-18'), ('05-18', '06-18'), ('06-18', '07-18'), ('07-18', '08-18'), ('08-18', '12-31')]
 for year in years:
     for first, second in chunks:
