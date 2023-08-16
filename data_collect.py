@@ -30,8 +30,9 @@ def congregate_files_by_year(dir:str = 'pbp_data', out_dir:str = "pbp_data_by_ye
     if not os.path.isdir(out_dir):
         os.makedirs(out_dir)
 
-    if len(os.listdir(dir)) == 0 or not os.path.isdir(dir):
-        collect_pitch_by_pitch(dir)
+    if len(os.listdir(out_dir)) == 0:
+        if len(os.listdir(dir)) == 0 or not os.path.isdir(dir):
+            collect_pitch_by_pitch(dir)
 
     pbp_file_paths = os.listdir(dir)
 
